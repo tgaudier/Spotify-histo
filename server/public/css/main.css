@@ -1,0 +1,23 @@
+.subhead {
+	text-align: left;
+}
+
+tr:not(.subhead_row) {
+	text-align: center;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+tbody {
+	border: 1px solid black;
+}
+
+td, th {
+	border-right: 1px solid black;
+}
+
+th {
+	border: 1px solid black;
+}

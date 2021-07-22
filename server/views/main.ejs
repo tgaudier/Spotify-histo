@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test</title>
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script src="https://d3js.org/d3.v7.min.js"></script>
+	<script type="text/javascript">
+		data = <%-JSON.stringify(dict)%>
+		listened = <%-JSON.stringify(listened)%>
+	</script>
+	<script type="text/javascript" src="js/main.js"></script>
+</head>
+<body>
+	<table>
+		<thead class="header">
+			<tr>
+				<th>Channel Name</th>
+				<th>Occurences</th>
+			</tr>
+		</thead>
+	</table>
+</body>
+</html>
