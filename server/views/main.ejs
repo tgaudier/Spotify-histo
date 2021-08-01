@@ -2,11 +2,11 @@
 <html>
 <head>
 	<title>Test</title>
+	<link rel="stylesheet" type="text/css" href="css/global.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 	<script src="https://d3js.org/d3.v7.min.js"></script>
 	<script type="text/javascript">
-		data = <%-JSON.stringify(dict)%>
-		listened = <%-JSON.stringify(listened)%>
+		window.localStorage.setItem('uid', <%- uid %>)
 	</script>
 	<script type="text/javascript" src="js/main.js"></script>
 </head>

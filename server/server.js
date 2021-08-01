@@ -1,40 +1,67 @@
 const express = require('express')
-const fs = require('fs')
+const path = require('path')
 const ejs = require('ejs')
+const fs = require('fs')
+const dp = require('./data-processor.js')
+const ids = require('./ids.js')
+
+const cors = require('cors')
+
+const jsh = require('./json-helper.js')
 
 const app = express()
 const port = 8080
 
+var fileupload = require("express-fileupload");
+app.use(fileupload())
+app.use(cors())
+
 app.use(express.static('public'))
 
-var data = fs.readFileSync('data/history.json')
-data = JSON.parse(data)
 
-dict = {}
-listened = {}
+app.post('/loadfile', (req, res) => {
+	
+	let uid = ids.getId()
 
-for (elt of data) {
-	channelName = elt["artistName"]
-	trackName = elt["trackName"]
-	if (typeof(dict[channelName]) != "number") {
-		dict[channelName] = 1
-		listened[channelName] = {}
-	} else {
-		dict[channelName]++
-	}
+	let file = req.files.spothistory
+	dp.saveFile(file, uid)
+	dp.preprocess(uid)
+	dp.processor(uid)
 
-	if (typeof(listened[channelName][trackName]) != "number") {
-		listened[channelName][trackName] = 1
-	} else {
-		listened[channelName][trackName]++
-	}
-}
+	res.redirect(`/app?uid=${uid}`)
+})
 
-console.log(listened)
+app.get('/delete', (req, res) => {
+	let uid = req.query.uid
+
+	dp.deleteFile(uid)
+
+	res.redirect('/')
+})
 
 app.get('/', (req, res) => {
-//	console.log(json_data)
-	res.render("main.ejs", {channels: dict, listened: listened})
+	res.render("upload.ejs")
+})
+
+app.get('/app', (req, res) => {
+
+	let uid = req.query.uid
+	res.render("main.ejs", {uid: uid})
+
+})
+
+app.get('/data', (req, res) => {
+	let uid = req.query.uid
+	let processed = req.query.processed
+
+	console.log(`Requested data for ${uid}`)
+
+	if (processed == 'true') {
+		res.json(dp.dataextractor(uid))
+	} else {
+		res.header("Content-Type",'application/json');
+    	res.sendFile(path.join(__dirname, `tmp/${uid}/extracted/data.json`))
+	}
 })
 
 app.get('/favicon.ico', (req, res) => {
