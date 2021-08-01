@@ -25,8 +25,12 @@ app.post('/loadfile', (req, res) => {
 
 	let file = req.files.spothistory
 	dp.saveFile(file, uid)
-	dp.preprocess(uid)
-	dp.processor(uid)
+
+	if (file.mimetype == "application/x-zip-compressed") {
+		dp.preprocess(uid)
+		dp.processor(uid)
+	}
+
 
 	res.redirect(`/app?uid=${uid}`)
 })

@@ -3,6 +3,17 @@ const zipper = require('adm-zip')
 const path = require('path')
 const jsh = require('./json-helper.js')
 
+const modes = {
+	"extended": {
+		"channelName": "master_metadata_album_artist_name",
+		"trackName": "master_metadata_track_name"
+	},
+	"basic": {
+		"channelName": "artistName",
+		"trackName": "trackName"
+	}
+}
+
 /**** DATA SAVING ****/
 
 function saveFileZip (file, uid) {
@@ -11,12 +22,18 @@ function saveFileZip (file, uid) {
 	fs.writeFileSync(`tmp/${uid}/raw/data.zip`, file.data)
 }
 
+function saveFileJson (file, uid) {
+	fs.mkdirSync('tmp/' + uid)
+	fs.mkdirSync('tmp/' + uid + '/extracted')
+	fs.writeFileSync(`tmp/${uid}/extracted/data.json`, file.data)
+}
+
 function saveFile (file, uid) {
 	console.log(`Starting saving for ${uid}`)
 	if (file.mimetype === 'application/x-zip-compressed') {
 		saveFileZip(file, uid)
-	} else {
-		console.log(file.mimetype)
+	} else if (file.mimetype === 'application/json') {
+		saveFileJson(file, uid)
 	}
 	console.log(`Ending saving for ${uid}`)
 }
@@ -38,6 +55,10 @@ function preprocess (uid) {
 				fs.writeFileSync(`${foldername}/data/${zipEntry.entryName}`, zipEntry.getData().toString('utf8'))
 			})
 		}
+
+		if (path.extname(file) == ".json") {
+			fs.copyFileSync(`${foldername}/data/${file}`, `${foldername}/extracted/${file}`)
+		}
 	})
 	console.log(`Finishing preprocessing for ${uid}`)
 }
@@ -45,16 +66,27 @@ function preprocess (uid) {
 
 /**** DATA PROCESSING ****/
 
+function guessMode (jsonData) {
+	for (mode in modes) {
+		if (jsonData[0][modes[mode]["trackName"]] != undefined) {
+			console.log(`Chosing ${mode} for this`)
+			return mode
+		}
+	}
+	console.log("Unable to guess mode, chosing basic by default")
+	return "basic"
+}
+
 function dataextractor_obj (jsonData) {
 
-
+	let mode = guessMode(jsonData)
 
 	let dict = {}
 	let listened = {}
 
 	for (elt of jsonData) {
-		channelName = elt["master_metadata_album_artist_name"]
-		trackName = elt["master_metadata_track_name"]
+		channelName = elt[modes[mode]["channelName"]]
+		trackName = elt[modes[mode]["trackName"]]
 		if (typeof(dict[channelName]) != "number") {
 			dict[channelName] = 1
 			listened[channelName] = {}
@@ -68,7 +100,7 @@ function dataextractor_obj (jsonData) {
 			listened[channelName][trackName]++
 		}
 	}
-	
+
 	return {
 		dict: dict,
 		listened: listened
