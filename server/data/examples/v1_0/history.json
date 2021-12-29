@@ -1,0 +1,15 @@
+{
+	"version": "1.0",
+	"played" : [
+		{
+			"song": "This is song 1 title",
+			"artist": "This is artist 1 name",
+			"date": "2021-12-30 23:59"
+		},
+		{
+			"song": "This is song 2 title",
+			"artist": "This is artist 2 name",
+			"date": "2021-12-31 14:27"
+		}
+	]
+}

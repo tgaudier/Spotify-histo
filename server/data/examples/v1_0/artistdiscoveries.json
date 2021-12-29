@@ -1,0 +1,19 @@
+{
+	"version": "1.0",
+	"artistdiscoveries": [
+		{
+			"name": "Artist Name",
+			"firstListen": {
+				"song": "Song 1 Name",
+				"date": "2021-12-31 23:59"
+			}
+		},
+		{
+			"name": "Other Name",
+			"firstListen": {
+				"song": "Song 2 Name",
+				"date": "2021-12-31 23:44"
+			}
+		}
+	]
+}

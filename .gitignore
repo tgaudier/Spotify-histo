@@ -1,4 +1,4 @@
 server/node_modules/*
 server/data/*
-!server/data/examples/*
+!server/data/examples
 server/tmp/*

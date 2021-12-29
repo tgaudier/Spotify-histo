@@ -1,0 +1,30 @@
+{
+	"version": "1.0",
+	"songlist": [
+			{
+				"name": "Artist Name",
+				"occurences": 42,
+				"songs": [
+					{
+						"name": "Song name",
+						"occurences": 27
+					},
+					{
+						"name": "Song 2 name",
+						"occurences": 15
+					}
+				]
+			},
+			{
+				"name": "Other Artist",
+				"occurences": 12,
+				"songs": [
+					{
+						"name": "Song 3 name",
+						"occurences": 12
+					}
+				]
+			}
+		]
+	}
+}

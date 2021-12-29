@@ -1,0 +1,27 @@
+{
+	"version": "1.0",
+	"artistDetails": [
+		{
+			"name": "Artist Name",
+			"played": [
+				{
+					"songName": "Song 1 name",
+					"date": "2021-04-12 14:27"
+				},
+				{
+					"songName": "Song 2 name",
+					"date": "2021-12-31 23:59"
+				}
+			]
+		},
+		{
+			"name": "Other artist",
+			"played": [
+				{
+					"songName": "Song 3 name",
+					"date": "2021-12-31 23:44"
+				}
+			]
+		}
+	]
+}
