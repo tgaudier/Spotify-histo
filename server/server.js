@@ -9,13 +9,14 @@ const cors = require('cors')
 var fileupload = require("express-fileupload");
 
 // Import of local modules
-const dp = require('./data-processor.js')
+const CONSTS = require('./consts.js')
+const dp = require('./data-parser.js')
 const ids = require('./ids.js')
 const jsh = require('./json-helper.js')
 
 // App creation and setup
 const app = express()
-const port = 8080
+const port = CONSTS.port
 
 app.use(fileupload())
 app.use(cors())
@@ -40,7 +41,25 @@ app.get('/upload', (req, res) => {
 
 app.get('/songlist', (req, res) => {
 	if (req.cookies != undefined && req.cookies.uid != undefined) {
-		res.render("main.ejs", {uid: uid})
+		res.render("songlist.ejs", {data: dp.processes["songlist"](req.cookies.uid)})
+	} else {
+		console.log(`Unknown cookie : ${req.cookies}`)
+		res.redirect('/upload')
+	}
+})
+
+app.get('/artistdiscoveries', (req, res) => {
+	if (req.cookies != undefined && req.cookies.uid != undefined) {
+		res.render("artistdiscoveries.ejs", {data: dp.processes["artistdiscoveries"](req.cookies.uid)})
+	} else {
+		console.log(`Unknown cookie : ${req.cookies}`)
+		res.redirect('/upload')
+	}
+})
+
+app.get('/artistdetails', (req, res) => {
+	if (req.cookies != undefined && req.cookies.uid != undefined) {
+		res.render("artistdetails.ejs", {data: dp.processes["artistdetails"](req.cookies.uid)})
 	} else {
 		console.log(`Unknown cookie : ${req.cookies}`)
 		res.redirect('/upload')
@@ -48,26 +67,25 @@ app.get('/songlist', (req, res) => {
 })
 
 app.post('/loadfile', (req, res) => {
-	
-	let uid = ids.getId()
+	const uid = ids.getId()
 
+	const file = req.files.spothistory
 
-	let file = req.files.spothistory
-	dp.saveFile(file, uid)
+	if (CONSTS.accepted_mime_types.includes(file.mimetype)) {
+		dp.storeData(uid, req.files.spothistory)
+		dp.preprocessData(uid)
 
-	if (file.mimetype == "application/x-zip-compressed") {
-		dp.preprocess(uid)
-		dp.processor(uid)
+		res.cookie("uid", uid)
+		res.redirect('/songlist')
+	} else {
+		console.log(req.files.spothistory.mimetype)
+		res.redirect('/upload')
 	}
-
-
-	res.cookie("uid", uid)
-	res.redirect('/songlist')
 })
 
 app.get('/delete', (req, res) => {
 	if (req.cookies != undefined && req.cookies.uid != undefined) {
-		let uid = req.query.uid
+		const uid = req.cookies.uid
 		dp.deleteFile(uid)
 	}
 
@@ -76,6 +94,7 @@ app.get('/delete', (req, res) => {
 	res.redirect('/')
 })
 
+/*
 app.get('/data', (req, res) => {
 	let uid = req.query.uid
 	let processed = req.query.processed
@@ -89,6 +108,7 @@ app.get('/data', (req, res) => {
     	res.sendFile(path.join(__dirname, `tmp/${uid}/extracted/data.json`))
 	}
 })
+*/
 
 app.get('/favicon.ico', (req, res) => {
 	res.status(204).end()
