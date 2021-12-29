@@ -1,27 +1,56 @@
+
+// Import of external modules
 const express = require('express')
 const path = require('path')
 const ejs = require('ejs')
 const fs = require('fs')
+const cookieParser = require('cookie-parser')
+const cors = require('cors')
+var fileupload = require("express-fileupload");
+
+// Import of local modules
 const dp = require('./data-processor.js')
 const ids = require('./ids.js')
-
-const cors = require('cors')
-
 const jsh = require('./json-helper.js')
 
+// App creation and setup
 const app = express()
 const port = 8080
 
-var fileupload = require("express-fileupload");
 app.use(fileupload())
 app.use(cors())
+app.use(cookieParser())
 
 app.use(express.static('public'))
 
+// Routes
+
+app.get('/', (req, res) => {
+
+	if (req.cookies != undefined && req.cookies.uid != undefined) {
+		res.redirect('/songlist')
+	} else {
+		res.redirect('/upload')
+	}
+})
+
+app.get('/upload', (req, res) => {
+	res.render("upload.ejs")
+})
+
+app.get('/songlist', (req, res) => {
+	if (req.cookies != undefined && req.cookies.uid != undefined) {
+		res.render("main.ejs", {uid: uid})
+	} else {
+		console.log(`Unknown cookie : ${req.cookies}`)
+		res.redirect('/upload')
+	}
+})
 
 app.post('/loadfile', (req, res) => {
 	
 	let uid = ids.getId()
+
 
 	let file = req.files.spothistory
 	dp.saveFile(file, uid)
@@ -32,26 +61,19 @@ app.post('/loadfile', (req, res) => {
 	}
 
 
-	res.redirect(`/app?uid=${uid}`)
+	res.cookie("uid", uid)
+	res.redirect('/songlist')
 })
 
 app.get('/delete', (req, res) => {
-	let uid = req.query.uid
+	if (req.cookies != undefined && req.cookies.uid != undefined) {
+		let uid = req.query.uid
+		dp.deleteFile(uid)
+	}
 
-	dp.deleteFile(uid)
+	res.clearCookie("uid")
 
 	res.redirect('/')
-})
-
-app.get('/', (req, res) => {
-	res.render("upload.ejs")
-})
-
-app.get('/app', (req, res) => {
-
-	let uid = req.query.uid
-	res.render("main.ejs", {uid: uid})
-
 })
 
 app.get('/data', (req, res) => {
@@ -71,6 +93,8 @@ app.get('/data', (req, res) => {
 app.get('/favicon.ico', (req, res) => {
 	res.status(204).end()
 })
+
+// Server start
 
 app.listen(port, () => {
 	console.log(`Server started at http://localhost:${port}`)
