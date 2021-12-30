@@ -43,7 +43,7 @@ app.get('/songlist', (req, res) => {
 	if (req.cookies != undefined && req.cookies.uid != undefined) {
 		res.render("songlist.ejs", {data: dp.processes["songlist"](req.cookies.uid)})
 	} else {
-		console.log(`Unknown cookie : ${req.cookies}`)
+		console.log(`Unknown cookie !`)
 		res.redirect('/upload')
 	}
 })
@@ -52,7 +52,7 @@ app.get('/artistdiscoveries', (req, res) => {
 	if (req.cookies != undefined && req.cookies.uid != undefined) {
 		res.render("artistdiscoveries.ejs", {data: dp.processes["artistdiscoveries"](req.cookies.uid)})
 	} else {
-		console.log(`Unknown cookie : ${req.cookies}`)
+		console.log(`Unknown cookie !`)
 		res.redirect('/upload')
 	}
 })
@@ -61,7 +61,7 @@ app.get('/artistdetails', (req, res) => {
 	if (req.cookies != undefined && req.cookies.uid != undefined) {
 		res.render("artistdetails.ejs", {data: dp.processes["artistdetails"](req.cookies.uid)})
 	} else {
-		console.log(`Unknown cookie : ${req.cookies}`)
+		console.log(`Unknown cookie !`)
 		res.redirect('/upload')
 	}
 })
