@@ -85,12 +85,10 @@ app.post('/loadfile', (req, res) => {
 
 app.get('/delete', (req, res) => {
 	if (req.cookies != undefined && req.cookies.uid != undefined) {
-		const uid = req.cookies.uid
-		dp.deleteFile(uid)
+		dp.deleteFolder(req.cookies.uid)
 	}
 
 	res.clearCookie("uid")
-
 	res.redirect('/')
 })
 

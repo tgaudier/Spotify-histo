@@ -1,6 +1,5 @@
 
 function merger ( json1, json2 ) {
-
 	if (json1 == undefined) {
 		return json2
 	}

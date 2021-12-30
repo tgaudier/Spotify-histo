@@ -36,7 +36,6 @@ function saveZip (uid, file) {
 
 // Extracts the zip file from $P/zipped/history.zip to $P/zipped/extract/*
 function extract (uid) {
-	fs.mkdirSync(`tmp/${uid}/zipped`)
 	fs.mkdirSync(`tmp/${uid}/zipped/extract`)
 	const zip = new zipper(`tmp/${uid}/zipped/history.zip`)
 	zip.getEntries().forEach(zipEntry => {
@@ -48,13 +47,16 @@ function extract (uid) {
 function merge (uid) {
 	const extract_folder = `tmp/${uid}/zipped/extract`
 	const files = fs.readdirSync(extract_folder)
-	result = {}
-	files.forEach(file => {
-		if (file.split('.')[1] == ".json")
-		result = jsh.merger(result, JSON.parse(fs.readFileSync(`${extract_folder}/${file}`)))
-	})
+	result = []
+	for (file of files) {
+		if (file.split('.')[1] == "json") {
+			json_data = JSON.parse(fs.readFileSync(`${extract_folder}/${file}`))
+			result = jsh.merger(result, json_data)
+		}
+
+	}
 	fs.writeFileSync(`tmp/${uid}/given/history.json`, JSON.stringify(result))
-	fs.rmSync(`tmp/${uid}/zipped/extract`)
+	fs.rmSync(`tmp/${uid}/zipped/extract`, { recursive: true })
 }
 
 /** JSON CASE **/
@@ -202,6 +204,12 @@ function process_artistdetails (uid) {
 
 /** END OF V1.0 SPECIFIC **/
 
+// STEP 999 :
+
+function deleteFolder (uid) {
+	fs.rmSync(`tmp/${uid}`, { recursive: true })
+}
+
  module.exports = {
  	storeData: storeData,
  	preprocessData: preprocessData,
@@ -209,5 +217,6 @@ function process_artistdetails (uid) {
  		"songlist": process_songlist,
  		"artistdiscoveries": process_artistdiscoveries,
  		"artistdetails": process_artistdetails
- 	}
+ 	},
+ 	deleteFolder: deleteFolder
  }
