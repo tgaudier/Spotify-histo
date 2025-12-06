@@ -108,41 +108,30 @@ function guessMode (elem) {
 	return undefined
 }
 
-// Turns a Date object to a string in "YYYY-MM-DD HH:MM" format
-function date_readable (timestamp) {
-	date = new Date(timestamp)
-	const m = date.getMonth() + 1
-	const d = date.getDate()
-	const h = date.getHours()
-	const n = date.getMinutes()
-
-	return [[
-		date.getFullYear(),
-		(m > 9 ? '' : '0') + m,
-		(d > 9 ? '' : '0') + d
-		].join('-'),
-		[
-		(h > 9 ? '' : '0') + h,
-		(n > 9 ? '' : '0') + n
-		].join(':')
-	].join(' ')
-}
 
 /** V1.0 SPECIFIC **/
 // Preprocesses the data present in $P/given/history.json to generate $P/data/history.json according to V1.0 history data format
 function preprocessJSON_1_0 (data) {
 	played = []
+	min = new Date()
+	max = new Date(0)
 
 	mode = guessMode(data[0])
 
 	if (mode != undefined) {
 		for (elem of data) {
-			played.push(preprocessJSON_1_0_single(elem, mode))
+			new_played = preprocessJSON_1_0_single(elem, mode)
+			if (new_played.date < min) { min = new_played.date }
+			if (new_played.date > max) { max = new_played.date }
+
+			played.push(new_played)
 		}
 	}
 	return {
 		"version": "1.0",
-		"played": played
+		"min": min,
+		"max": max,
+		"played": played,
 	}
 }
 
@@ -152,7 +141,7 @@ function preprocessJSON_1_0_single (elem, mode) {
 	return {
 		"song": elem[attr["song_name"]],
 		"artist": elem[attr["artist_name"]],
-		"date": date_readable(Date.parse(elem[attr["play_date"]]))
+		"date": Date.parse(elem[attr["play_date"]])
 	}
 }
 
@@ -160,46 +149,40 @@ function preprocessJSON_1_0_single (elem, mode) {
 
 // STEP 3 :
 
-function process_songlist (uid) {
+
+function process_songlist (uid, start_date, end_date) {
 
 	data = JSON.parse(fs.readFileSync(`tmp/${uid}/data/history.json`))
 	assert.equal(data.version, CONSTS.data_format)
-	result = {}
 
+	if (start_date === -1) { start_date = new Date(data.min) } else { start_date = new Date(start_date) }
+	if (end_date === -1) { end_date = new Date(data.max) } else { end_date = new Date(end_date) }
+
+	result = {min: Date.parse(start_date), max: Date.parse(end_date), d: {}}
 	for (elem of data.played) {
 
-		song_name = elem.song
-		artist_name = elem.artist
+		date = elem.date
+		if ( elem.date >= start_date && elem.date <= end_date ) {
 
-		if (result[artist_name] == undefined) {
-			result[artist_name] = {
-				"occurences": 0,
-				"songs": {
+			song_name = elem.song
+			artist_name = elem.artist
+
+			if (result["d"][artist_name] == undefined) {
+				result["d"][artist_name] = {
+					"occurences": 0,
+					"songs": {
+					}
 				}
+			} 
+			result["d"][artist_name]["occurences"]++
+			if (result["d"][artist_name]["songs"][song_name] == undefined) {
+				result["d"][artist_name]["songs"][song_name] = 0
 			}
-		} 
-		result[artist_name]["occurences"]++
-		if (result[artist_name]["songs"][song_name] == undefined) {
-			result[artist_name]["songs"][song_name] = 0
+			result["d"][artist_name]["songs"][song_name]++
 		}
-		result[artist_name]["songs"][song_name]++
 	}
 
 	return result
-}
-
-// STEP 4 :
-
-function process_artistdiscoveries (uid) {
-	data = JSON.parse(fs.readFileSync(`tmp/${uid}/data/history.json`))
-	assert.equal(data.version, CONSTS.data_format)
-}
-
-// STEP 5 :
-
-function process_artistdetails (uid) {
-	data = JSON.parse(fs.readFileSync(`tmp/${uid}/data/history.json`))
-	assert.equal(data.version, CONSTS.data_format)
 }
 
 /** END OF V1.0 SPECIFIC **/
@@ -215,8 +198,6 @@ function deleteFolder (uid) {
  	preprocessData: preprocessData,
  	processes: {
  		"songlist": process_songlist,
- 		"artistdiscoveries": process_artistdiscoveries,
- 		"artistdetails": process_artistdetails
  	},
  	deleteFolder: deleteFolder
  }

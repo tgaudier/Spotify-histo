@@ -4,14 +4,27 @@
 	<title>Test</title>
 	<link rel="stylesheet" type="text/css" href="css/global.css">
 	<link rel="stylesheet" type="text/css" href="css/songlist.css">
-	<script type="text/javascript">
-		data = <%- JSON.stringify(data) %>
-	</script>
+	<link rel="icon" href="data:,">
 	<script type="text/javascript" src="js/d3.v7.min.js"></script>
 	<script type="text/javascript" src="js/songlist.js"></script>
 </head>
 <body>
-	<table>
+	<div id="filterblock">
+		<form id="filterform">
+			<fieldset id="filterdate">
+				<label for="start_date">Starting date:</label><input name="start_date" id="start_date" type="date"><br>
+				<label for="end_date">Ending date:</label><input name="end_date" id="end_date" type="date">
+			</fieldset>
+			<fieldset id="filternum"></fieldset>
+			<input type="submit" name="filtersub" value="Filter">
+		</form>
+	</div>
+	<div id=controlblock>
+		<a href="/delete">
+			<button>Delete data</button>
+		</a>
+	</div>
+	<table id="songlist">
 		<thead class="header">
 			<tr>
 				<th>Channel Name</th>

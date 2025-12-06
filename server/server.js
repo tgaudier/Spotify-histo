@@ -24,7 +24,7 @@ app.use(cookieParser())
 
 app.use(express.static('public'))
 
-// Routes
+/// Routes
 
 app.get('/', (req, res) => {
 
@@ -41,25 +41,7 @@ app.get('/upload', (req, res) => {
 
 app.get('/songlist', (req, res) => {
 	if (req.cookies != undefined && req.cookies.uid != undefined) {
-		res.render("songlist.ejs", {data: dp.processes["songlist"](req.cookies.uid)})
-	} else {
-		console.log(`Unknown cookie !`)
-		res.redirect('/upload')
-	}
-})
-
-app.get('/artistdiscoveries', (req, res) => {
-	if (req.cookies != undefined && req.cookies.uid != undefined) {
-		res.render("artistdiscoveries.ejs", {data: dp.processes["artistdiscoveries"](req.cookies.uid)})
-	} else {
-		console.log(`Unknown cookie !`)
-		res.redirect('/upload')
-	}
-})
-
-app.get('/artistdetails', (req, res) => {
-	if (req.cookies != undefined && req.cookies.uid != undefined) {
-		res.render("artistdetails.ejs", {data: dp.processes["artistdetails"](req.cookies.uid)})
+		res.render("songlist.ejs", {})
 	} else {
 		console.log(`Unknown cookie !`)
 		res.redirect('/upload')
@@ -92,24 +74,19 @@ app.get('/delete', (req, res) => {
 	res.redirect('/')
 })
 
-/*
+
 app.get('/data', (req, res) => {
-	let uid = req.query.uid
-	let processed = req.query.processed
+	if (req.cookies != undefined && req.cookies.uid != undefined) {
+		cookie_id = req.cookies.uid
+		res.set("Content-Type", "application/json")
+		let data = dp.processes["songlist"](req.cookies.uid, parseInt(req.query["start_date"]), parseInt(req.query["end_date"]))
 
-	console.log(`Requested data for ${uid}`)
-
-	if (processed == 'true') {
-		res.json(dp.dataextractor(uid))
+		res.send(data)
+	
 	} else {
-		res.header("Content-Type",'application/json');
-    	res.sendFile(path.join(__dirname, `tmp/${uid}/extracted/data.json`))
+		console.log(`Unknown cookie !`)
+		res.redirect('/upload')
 	}
-})
-*/
-
-app.get('/favicon.ico', (req, res) => {
-	res.status(204).end()
 })
 
 // Server start
