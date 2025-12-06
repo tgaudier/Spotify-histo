@@ -3,7 +3,7 @@ module.exports = {
 	port: 8080,
 
 	// File parameters
-	accepted_mime_types: ["application/json", "application/x-zip-compressed"],
+	accepted_mime_types: ["application/json", "application/x-zip-compressed", "application/zip"],
 
 	// Preprocessing parameters
 	data_format: "1.0",

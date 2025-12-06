@@ -76,7 +76,7 @@ function storeData (uid, file) {
 	fs.mkdirSync(`tmp/${uid}`)
 	fs.mkdirSync(`tmp/${uid}/given`)
 
-	if (file.mimetype == "application/x-zip-compressed") {
+	if (file.mimetype == "application/x-zip-compressed" || file.mimetype == "application/zip") {
 		saveZip (uid, file)
 		extract(uid)
 		merge(uid)
